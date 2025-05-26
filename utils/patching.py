@@ -37,6 +37,7 @@ def get_fine_reconstruction_from_patches(
         sharpening_func: Callable,
         patch_size: int,
         stride: int,
+        *sharpening_args: tuple
     ) -> ndarray:
     n = len(coarse_inputs)
     if n != len(fine_inputs):
@@ -59,10 +60,10 @@ def get_fine_reconstruction_from_patches(
         temp_patch = tuple_[-1]
 
         fit_res = fit_func(coarse_patch_inputs, temp_patch)
-        fit_pred = sharpening_func(coarse_patch_inputs, fit_res, patch_size)
+        fit_pred = sharpening_func(coarse_patch_inputs, fit_res, patch_size, *sharpening_args)
         coarse_residual_patches.append(temp_patch - fit_pred)
 
-        fine_temp_patch = sharpening_func(fine_patch_inputs, fit_res, patch_size*scale)
+        fine_temp_patch = sharpening_func(fine_patch_inputs, fit_res, patch_size*scale, *sharpening_args)
         fine_temp_patches.append(fine_temp_patch)
 
     return (

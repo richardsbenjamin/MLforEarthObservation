@@ -16,6 +16,7 @@ def get_target_by_classing(
         fine_masks: dict,
         fit_func: Callable,
         sharpening_func: Callable,
+        *sharpening_args: tuple,
     ) -> tuple[ndarray]:
     n = len(coarse_inputs)
     if n != len(fine_inputs):
@@ -36,9 +37,9 @@ def get_target_by_classing(
         coarse_masked_target = coarse_target[coarse_mask]
 
         fit_res = fit_func(coarse_masked_inputs, coarse_masked_target)
-        fit_pred = sharpening_func(coarse_masked_inputs, fit_res)
+        fit_pred = sharpening_func(coarse_masked_inputs, fit_res, *sharpening_args)
         coarse_resids[coarse_mask] = coarse_masked_target - fit_pred
 
-        fine_target[fine_mask] = sharpening_func(fine_masked_inputs, fit_res)
+        fine_target[fine_mask] = sharpening_func(fine_masked_inputs, fit_res, *sharpening_args)
 
     return fine_target, coarse_resids

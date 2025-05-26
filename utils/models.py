@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import statsmodels.api as sm
+import numpy as np
 from numpy import column_stack, ones_like
 from scipy.stats import linregress
 
@@ -49,6 +50,31 @@ def albedo_polynomial(index: ndarray, albedo: ndarray) -> ndarray:
         index**2, index * albedo, albedo**2, index, albedo, ones_like(index)
     ])
 
+def replace_thresholded_pixels(
+        image: ndarray,
+        threshold_high: float,
+        threshold_low: float,
+        window_size: int = 5,
+    ) -> ndarray:
+    pad = window_size // 2
+    padded_img = np.pad(image, pad, mode='reflect')
+    result = image.copy()
+    
+    # Create distance weights (5x5 Gaussian-like weights)
+    center = window_size // 2
+    y, x = np.ogrid[-center:center+1, -center:center+1]
+    distances = np.sqrt(x**2 + y**2)
+    weights = 1 / (1 + distances)  # Inverse distance weighting
+    
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            if image[i, j] > threshold_high or image[i, j] < threshold_low:
+                neighborhood = padded_img[i:i+window_size, j:j+window_size]
+                weighted_mean = np.sum(neighborhood * weights) / np.sum(weights)
+                result[i, j] = weighted_mean
+                
+    return result
+
 def albedo_polynomial_fit(
         inputs: list[ndarray],
         temp: ndarray,
@@ -59,10 +85,14 @@ def albedo_polynomial_fit(
 def albedo_polynomial_sharpening(
         inputs: list[ndarray],
         poly_fit_res: RegressionResultsWrapper,
+        albedo_high: float,
+        albedo_low: float,
         reshape_size: int | None = None,
     ) -> ndarray:
     X = albedo_polynomial(*inputs)
     res = poly_fit_res.predict(X)
+    if res.min() < albedo_low or res.min() > albedo_high:
+        res = replace_thresholded_pixels(res, albedo_high, albedo_low)
     if reshape_size is None:
         return res
     return res.reshape((reshape_size,reshape_size))

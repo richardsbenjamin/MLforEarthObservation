@@ -9,6 +9,17 @@ if TYPE_CHECKING:
     from _typing_ import ndarray
 
 
+def downsample_average(image: ndarray, scale: int = 5) -> ndarray:
+    h, w = image.shape
+    return image.reshape(h // scale, scale, w // scale, scale).mean(axis=(1, 3))
+
+def resid_calc_classic(y: ndarray, y_hat: ndarray) -> ndarray:
+    return y - y_hat
+
+def resid_calc_mean(y: ndarray, y_hat: ndarray, scale: int = 5) -> ndarray:
+    y_hat = downsample_average(y_hat)
+    return y - y_hat
+
 def upscale_coarse(
         coarse_image: ndarray, 
         scale: int = 5,

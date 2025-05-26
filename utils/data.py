@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import rasterio
-from numpy import float32
+from numpy import float32, mean
 
 from _typing_ import TYPE_CHECKING
 
@@ -24,3 +24,6 @@ def read_image_file(file_path: str) -> ndarray:
     with rasterio.open(file_path) as dataset:
         return dataset.read(1).astype(float32)
     
+def rmse(x: ndarray, y: ndarray) -> float:
+    return mean((x - y) ** 2)
+
