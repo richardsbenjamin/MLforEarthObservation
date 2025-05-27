@@ -10,6 +10,8 @@ from _typing_ import TYPE_CHECKING
 if TYPE_CHECKING:
     from _typing_ import ndarray, RegressionResultsWrapper
 
+ALBEDO_LOW = 250
+ALBEDO_HIGH = 390
 
 def linear_fit(index: ndarray, temp: ndarray) -> tuple[float]:
     if isinstance(index, (list, tuple)):
@@ -85,14 +87,16 @@ def albedo_polynomial_fit(
 def albedo_polynomial_sharpening(
         inputs: list[ndarray],
         poly_fit_res: RegressionResultsWrapper,
-        albedo_high: float,
-        albedo_low: float,
         reshape_size: int | None = None,
+        albedo_high: float = ALBEDO_HIGH,
+        albedo_low: float = ALBEDO_LOW,
     ) -> ndarray:
     X = albedo_polynomial(*inputs)
     res = poly_fit_res.predict(X)
-    if res.min() < albedo_low or res.min() > albedo_high:
-        res = replace_thresholded_pixels(res, albedo_high, albedo_low)
     if reshape_size is None:
         return res
+    if res.min() < albedo_low or res.min() > albedo_high:
+        res = replace_thresholded_pixels(
+            res.reshape((reshape_size, reshape_size)), albedo_high, albedo_low,
+        )
     return res.reshape((reshape_size,reshape_size))

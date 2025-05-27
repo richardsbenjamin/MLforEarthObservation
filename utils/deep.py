@@ -12,7 +12,7 @@ def stack_inputs(inputs: tuple, output: ndarray) -> tuple[ndarray]:
     y = output.flatten()[:, np.newaxis]
     return x, y
 
-def train(model, criterion, optimizer, dataloader, n_epochs=50) -> None:
+def train(model, criterion, optimizer, dataloader, checkpoint_name, n_epochs=50) -> None:
     best_loss = float('inf')
     for epoch in range(n_epochs):
         running_loss = 0.0
@@ -28,7 +28,7 @@ def train(model, criterion, optimizer, dataloader, n_epochs=50) -> None:
         
         if epoch_loss < best_loss:
             best_loss = epoch_loss
-            torch.save(model.state_dict(), f"./checkpoints/Model_epoch_{epoch+1}.pt")
+            torch.save(model.state_dict(), f"./checkpoints/{checkpoint_name}_epoch_{epoch+1}.pt")
             print(f"Epoch {epoch+1}/{n_epochs}, Loss: {epoch_loss:.4f}")
 
 class RegressionDataset(Dataset):

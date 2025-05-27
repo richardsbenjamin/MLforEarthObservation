@@ -24,6 +24,7 @@ def get_target_by_classing(
     
     n_h = fine_inputs[0].shape[0]
     n_c = coarse_inputs[0].shape[0]
+    reshape = None
 
     coarse_resids = zeros((n_c, n_c))
     fine_target = zeros((n_h, n_h))
@@ -37,9 +38,9 @@ def get_target_by_classing(
         coarse_masked_target = coarse_target[coarse_mask]
 
         fit_res = fit_func(coarse_masked_inputs, coarse_masked_target)
-        fit_pred = sharpening_func(coarse_masked_inputs, fit_res, *sharpening_args)
+        fit_pred = sharpening_func(coarse_masked_inputs, fit_res, reshape, *sharpening_args)
         coarse_resids[coarse_mask] = coarse_masked_target - fit_pred
 
-        fine_target[fine_mask] = sharpening_func(fine_masked_inputs, fit_res, *sharpening_args)
+        fine_target[fine_mask] = sharpening_func(fine_masked_inputs, fit_res, reshape, *sharpening_args)
 
     return fine_target, coarse_resids
