@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import matplotlib.pyplot as plt
 import rasterio
 from numpy import float32, mean
 
@@ -27,3 +28,14 @@ def read_image_file(file_path: str) -> ndarray:
 def rmse(x: ndarray, y: ndarray) -> float:
     return mean((x - y) ** 2)
 
+def display_image(image: ndarray) -> None:
+    fig, ax0 = plt.subplots(nrows=1, ncols=1, sharex=False, figsize=(18, 9))
+
+    ax0.set_title('Fine resolution LST')
+    img=ax0.imshow(image, cmap='inferno')
+
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.02, 0.7])
+    cbar=fig.colorbar(img, cax=cbar_ax)
+
+    plt.show()
