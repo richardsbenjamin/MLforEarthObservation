@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import matplotlib.pyplot as plt
+import numpy as np
 import rasterio
-from numpy import float32, mean
+from numpy import array, float32, mean
 
 from _typing_ import TYPE_CHECKING
 
@@ -28,6 +29,19 @@ def read_image_file(file_path: str) -> ndarray:
 def rmse(x: ndarray, y: ndarray) -> float:
     return mean((x - y) ** 2)
 
+def mean_bias_error(true_values, predicted_values):
+    true_values = array(true_values)
+    predicted_values = array(predicted_values)
+    return mean(true_values - predicted_values)
+
+def correlation_coefficient(true_values, predicted_values):
+    true_values = array(true_values)
+    predicted_values = array(predicted_values)
+    numerator = np.sum(true_values * predicted_values)
+    denominator = np.sqrt(np.sum(true_values**2) * np.sum(predicted_values**2))
+    return numerator / denominator
+
+
 def display_image(image: ndarray) -> None:
     fig, ax0 = plt.subplots(nrows=1, ncols=1, sharex=False, figsize=(18, 9))
 
@@ -39,3 +53,4 @@ def display_image(image: ndarray) -> None:
     cbar=fig.colorbar(img, cax=cbar_ax)
 
     plt.show()
+
