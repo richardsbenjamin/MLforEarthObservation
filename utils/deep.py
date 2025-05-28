@@ -12,7 +12,7 @@ def stack_inputs(inputs: tuple, output: ndarray) -> tuple[ndarray]:
     y = output.flatten()[:, np.newaxis]
     return x, y
 
-def train(model, criterion, optimizer, dataloader, checkpoint_name, n_epochs=50) -> None:
+def train(model, criterion, optimizer, dataloader, dataset_length, checkpoint_name, n_epochs=50) -> None:
     best_loss = float('inf')
     for epoch in range(n_epochs):
         running_loss = 0.0
@@ -24,7 +24,7 @@ def train(model, criterion, optimizer, dataloader, checkpoint_name, n_epochs=50)
             optimizer.step()
             running_loss += loss.item() * inputs.size(0)
 
-        epoch_loss = running_loss / len(dataloader)
+        epoch_loss = running_loss / dataset_length
         
         if epoch_loss < best_loss:
             best_loss = epoch_loss
